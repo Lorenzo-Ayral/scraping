@@ -29,6 +29,12 @@ if response.status_code == 200:
     description = get_text_if_not_none(soup.find("p", class_="description"))
     print(description)
 
+    # Ingrédients
+    div_ingredients = soup.find("div", class_="ingredients")
+    e_ingredients = div_ingredients.find_all("p")
+    for e_ingredient in e_ingredients:
+        print("Ingrédient :", e_ingredient.text)
+
 else:
     print("Erreur :", response.status_code)
 
