@@ -1,8 +1,9 @@
 from bs4 import BeautifulSoup
 import requests
 
-url = 'https://codeavecjonathan.com/scraping/recette/'
+url = 'https://codeavecjonathan.com/scraping/recette_ua/'
 
+HEADERS = {"User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:121.0) Gecko/20100101 Firefox/121.0"}
 
 def get_text_if_not_none(e):
     if e:
@@ -10,7 +11,7 @@ def get_text_if_not_none(e):
     return None
 
 
-response = requests.get(url)
+response = requests.get(url, headers=HEADERS)
 response.encoding = response.apparent_encoding
 
 if response.status_code == 200:
