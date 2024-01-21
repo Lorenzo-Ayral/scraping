@@ -3,6 +3,13 @@ import requests
 
 url = 'https://codeavecjonathan.com/scraping/recette/'
 
+
+def get_text_if_not_none(e):
+    if e:
+        return e.text.strip()
+    return None
+
+
 response = requests.get(url)
 response.encoding = response.apparent_encoding
 
@@ -10,15 +17,17 @@ if response.status_code == 200:
 
     html = response.text
 
-    soup = BeautifulSoup(html, 'html.parser')
+    f = open("recette.html", "w")
+    f.write(html)
+    f.close()
 
-    title_content = soup.title.string
+    soup = BeautifulSoup(html, 'html5lib')
 
-    print(title_content)
+    titre = soup.find("h1").text
+    print(titre)
 
-    # f = open("recette.html", "w")
-    # f.write(html)
-    # f.close()
+    description = get_text_if_not_none(soup.find("p", class_="description"))
+    print(description)
 
 else:
     print("Erreur :", response.status_code)
