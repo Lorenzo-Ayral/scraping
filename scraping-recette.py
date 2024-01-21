@@ -35,6 +35,12 @@ if response.status_code == 200:
     for e_ingredient in e_ingredients:
         print("Ingrédient :", e_ingredient.text)
 
+    # Étapes
+    table_preparation = soup.find("table", class_="preparation")
+    e_preparations = table_preparation.find_all("td", class_="preparation_etape")
+    for e_preparation in e_preparations:
+        print("Étapes :", e_preparation.text)
+
 else:
     print("Erreur :", response.status_code)
 
