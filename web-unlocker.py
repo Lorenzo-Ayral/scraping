@@ -17,13 +17,13 @@ try:
 except FileNotFoundError:
     counter = 0
 
-directory = "woodbrass"
-if not os.path.exists(directory):
-    os.makedirs(directory)
 
-url = 'https://www.woodbrass.com/guitares/guitares+electriques/retro+vintage#filtre-liste-categ'
+url = 'https://www.amazon.fr/dp/B0C2427W39/ref=sspa_dk_detail_0?psc=1&pd_rd_i=B0C2427W39&pd_rd_w=Pmmmh&content-id=amzn1.sym.67940124-f33c-4507-afdc-9e790fb9d33b&pf_rd_p=67940124-f33c-4507-afdc-9e790fb9d33b&pf_rd_r=E06TVEP9P676SK1J394A&pd_rd_wg=EcV5Q&pd_rd_r=68d968fd-9f54-4a39-bf3e-2b6828361dfc&s=kitchen&sp_csd=d2lkZ2V0TmFtZT1zcF9kZXRhaWxfdGhlbWF0aWM'
 parsed_url = urlparse(url)
 domain_name = parsed_url.netloc.split('.')[1]
+directory = domain_name
+if not os.path.exists(directory):
+    os.makedirs(directory)
 output_filename = os.path.join(directory, f'{domain_name}{counter}.html')
 
 opener = urllib.request.build_opener(
