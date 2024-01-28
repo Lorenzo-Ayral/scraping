@@ -6,7 +6,7 @@ from playwright.async_api import async_playwright
 
 SBR_WS_CDP = 'wss://brd-customer-hl_d532bd73-zone-scraping_browser1:g1n2qxu9rdg0@brd.superproxy.io:9222'
 
-url ="https://www.codeavecjonathan.com/scraping/techsport/"
+url = "https://www.codeavecjonathan.com/scraping/techsport/"
 parsed_url = urlparse(url)
 domain_name = parsed_url.netloc.split('.')[1]
 directory = domain_name
@@ -15,6 +15,40 @@ if not os.path.exists(directory):
 output_filename = os.path.join(directory, f'{domain_name}.html')
 
 BYPASS_SCRAPING = os.path.exists(output_filename)
+
+
+def get_text_if_not_none(e):
+    if e:
+        return e.text.strip()
+    return None
+
+
+def extract_product_infos(html):
+    infos = {}
+
+    bs = BeautifulSoup(html, 'html5lib')
+    infos['title'] = get_text_if_not_none(bs.find("span", id='productTitle'))
+
+    infos['nb_ratings'] = 0
+    ratings_text = get_text_if_not_none(bs.find("span", id='customer-review-text'))
+    if ratings_text:
+        nb_ratings_str = ratings_text.split()[0]
+        if nb_ratings_str.isdigit():
+            infos['nb_ratings'] = int(nb_ratings_str)
+
+    infos['price'] = 0.0
+    price_whole_str = get_text_if_not_none(bs.find("span", class_='price-whole'))
+    price_fraction_str = get_text_if_not_none(bs.find("span", class_='price-fraction'))
+    if price_whole_str and price_fraction_str.isdigit():
+        price = float(price_whole_str)
+        if price_fraction_str and price_fraction_str.isdigit():
+            price += float(price_fraction_str)/100
+        infos['price'] = price
+
+    infos['description'] = get_text_if_not_none(bs.find("div", id='product-description'))
+
+    return infos
+
 
 async def run(pw):
     if not BYPASS_SCRAPING:
@@ -25,7 +59,7 @@ async def run(pw):
             page = await browser.new_page()
             print('Connected! Navigating to ' + url + '...')
             await page.goto(url)
-            await page.screenshot(path='./'+ directory +'/scraping-browser.png', full_page=True)
+            await page.screenshot(path='./' + directory + '/scraping-browser.png', full_page=True)
             print('Navigated! Scraping page content...')
             html = await page.content()
             f = open(output_filename, "w")
@@ -40,6 +74,10 @@ async def run(pw):
                 f.close()
             else:
                 print(f"File {output_filename} does not exist.")
+        print('Scraping page content...')
+        infos = extract_product_infos(html)
+        print(infos)
+
     finally:
         if not BYPASS_SCRAPING:
             await browser.close()
