@@ -6,15 +6,15 @@ from playwright.async_api import async_playwright
 
 SBR_WS_CDP = 'wss://brd-customer-hl_d532bd73-zone-scraping_browser1:g1n2qxu9rdg0@brd.superproxy.io:9222'
 
-url = "https://www.codeavecjonathan.com/scraping/techsport/"
-parsed_url = urlparse(url)
-domain_name = parsed_url.netloc.split('.')[1]
-directory = domain_name
-if not os.path.exists(directory):
-    os.makedirs(directory)
-output_filename = os.path.join(directory, f'{domain_name}.html')
+URLS = [
+    "https://www.codeavecjonathan.com/scraping/techsport/",
+    "https://www.codeavecjonathan.com/scraping/techsport/index.html?id=fitness-pro",
+    "https://www.codeavecjonathan.com/scraping/techsport/index.html?id=solac-sync",
+    "https://www.codeavecjonathan.com/scraping/techsport/index.html?id=tech-wizard"
+]
 
-BYPASS_SCRAPING = os.path.exists(output_filename)
+
+BYPASS_SCRAPING = False
 
 
 def get_text_if_not_none(e):
@@ -55,28 +55,38 @@ async def run(pw):
         print('Connecting to Scraping Browser...')
         browser = await pw.chromium.connect_over_cdp(SBR_WS_CDP)
     try:
-        if not BYPASS_SCRAPING:
-            page = await browser.new_page()
-            print('Connected! Navigating to ' + url + '...')
-            await page.goto(url)
-            await page.screenshot(path='./' + directory + '/scraping-browser.png', full_page=True)
-            print('Navigated! Scraping page content...')
-            html = await page.content()
-            f = open(output_filename, "w")
-            f.write(html)
-            f.close()
-
-        else:
-            print('Bypassing scraping...')
-            if os.path.isfile(output_filename):
-                f = open(output_filename, "r")
-                html = f.read()
+        i = 0
+        for url in URLS:
+            i = i+1
+            parsed_url = urlparse(url)
+            domain_name = parsed_url.netloc.split('.')[1]
+            directory = domain_name
+            if not os.path.exists(directory):
+                os.makedirs(directory)
+                output_filename = os.path.join(directory, f'{domain_name}{i}.html')
+            print(f"Page {i}/{len(URLS)}")
+            if not BYPASS_SCRAPING:
+                page = await browser.new_page()
+                print('Connected! Navigating to ' + URLS + '...')
+                await page.goto(URLS)
+                await page.screenshot(path='./' + directory + '/scraping-browser.png', full_page=True)
+                print('Navigated! Scraping page content...')
+                html = await page.content()
+                f = open(output_filename, "w")
+                f.write(html)
                 f.close()
+
             else:
-                print(f"File {output_filename} does not exist.")
-        print('Scraping page content...')
-        infos = extract_product_infos(html)
-        print(infos)
+                print('Bypassing scraping...')
+                if os.path.isfile(output_filename):
+                    f = open(output_filename, "r")
+                    html = f.read()
+                    f.close()
+                else:
+                    print(f"File {output_filename} does not exist.")
+            print('Scraping page content...')
+            infos = extract_product_infos(html)
+            print(infos)
 
     finally:
         if not BYPASS_SCRAPING:
