@@ -72,7 +72,7 @@ async def run(pw):
                 await page.screenshot(path='./' + output_filename + '.png', full_page=True)
                 print('Navigated! Scraping page content...')
                 html = await page.content()
-                f = open(output_filename + '.html', "w")
+                f = open(output_filename + '.py', "w")
                 f.write(html)
                 f.close()
 
