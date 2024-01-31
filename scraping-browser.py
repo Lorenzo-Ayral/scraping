@@ -61,18 +61,18 @@ async def run(pw):
             parsed_url = urlparse(url)
             domain_name = parsed_url.netloc.split('.')[1]
             directory = domain_name
+            output_filename = os.path.join(directory, f'{domain_name}{i}')
             if not os.path.exists(directory):
                 os.makedirs(directory)
-                output_filename = os.path.join(directory, f'{domain_name}{i}.html')
             print(f"Page {i}/{len(URLS)}")
             if not BYPASS_SCRAPING:
                 page = await browser.new_page()
-                print('Connected! Navigating to ' + URLS + '...')
-                await page.goto(URLS)
-                await page.screenshot(path='./' + directory + '/scraping-browser.png', full_page=True)
+                print('Connected! Navigating to ' + str(URLS) + '...')
+                await page.goto(url)
+                await page.screenshot(path='./' + output_filename + '.png', full_page=True)
                 print('Navigated! Scraping page content...')
                 html = await page.content()
-                f = open(output_filename, "w")
+                f = open(output_filename + '.html', "w")
                 f.write(html)
                 f.close()
 
